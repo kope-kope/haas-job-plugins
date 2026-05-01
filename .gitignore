@@ -1,0 +1,10 @@
+# User credentials (created by google-auth.py, never commit)
+.credentials/
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# macOS
+.DS_Store
