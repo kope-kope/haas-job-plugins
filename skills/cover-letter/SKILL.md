@@ -98,7 +98,12 @@ End by connecting back to why the user cares about what the company is building.
 1. Write the cover letter as a text file first
 2. **Run the full text through the humanizer skill before finalizing.** Cover letters are the most scrutinized document in an application — if it sounds AI-generated, it's worse than not sending one at all. The humanizer catches em dashes, inflated language, sycophantic tone, and other tells. This is not optional.
 3. Verify word count (body only, excluding salutation and closing) is 450-500 words
-4. If Google Workspace connector is available, save to Google Drive. Check `references/config.md` for the Job Search Folder ID — save the doc to that folder. Name the doc "Cover Letter - [Company Name]". If no folder is configured, save to the user's Drive root.
+4. If Google Drive is configured, save to Google Drive. Check `references/config.md` for the Job Search Folder ID. If it exists, create the doc in that folder:
+   ```
+   python ${CLAUDE_PLUGIN_ROOT}/gdocs.py create "Cover Letter - [Company Name]" FOLDER_ID
+   python ${CLAUDE_PLUGIN_ROOT}/gdocs.py write DOC_ID "cover letter text"
+   ```
+   If no folder is configured, skip Google Drive and just produce the local file.
 5. Also save as a local file: `[Company Name] - Cover Letter.docx` in the workspace folder
 
 ---

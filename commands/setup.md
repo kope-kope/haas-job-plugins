@@ -105,15 +105,21 @@ Once the user is happy with the resume, save it to:
 
 **Goal:** Create a job search folder in the user's Google Drive, upload their formatted resume as the master template, and save the Doc ID so resume-tailor can copy from it every time (preserving their formatting perfectly).
 
-If Google Workspace is NOT connected, skip this step entirely:
-"No Google Workspace connected — that's fine. Your resumes will be produced as Word docs (.docx) instead. You can always set up Google Workspace later and re-run this step."
+First, check if Google credentials exist by running:
+```
+python ${CLAUDE_PLUGIN_ROOT}/gdocs.py auth
+```
+If this fails or the credentials file doesn't exist, skip this step:
+"Google Drive isn't set up yet. Run `python google-auth.py` from the plugin folder first, then come back and run `/setup` again. Your resumes will be produced as Word docs (.docx) in the meantime."
 
-If Google Workspace IS connected:
+If Google auth succeeds:
 
 **1. Create the job search folder:**
-Create a new folder in Google Drive called "Job Search — [Name]". This is where all tailored resumes, cover letters, and other docs will live.
-
-Save the Folder ID to `references/config.md`.
+Run:
+```
+python ${CLAUDE_PLUGIN_ROOT}/gdocs.py create-folder "Job Search — [Name]"
+```
+This returns a JSON with `folder_id` and `url`. Save both.
 
 **2. Get the master resume:**
 Ask the user:
@@ -128,14 +134,19 @@ Whichever you use, make sure the formatting looks how you want it — bold compa
 **3. Process the resume:**
 
 If they upload a .docx:
-- Upload the file to the "Job Search — [Name]" Google Drive folder
-- Google Drive auto-converts .docx to Google Docs format, preserving formatting
-- Grab the Doc ID from the uploaded file
+- Upload it to the Job Search folder:
+  ```
+  python ${CLAUDE_PLUGIN_ROOT}/gdocs.py upload /path/to/resume.docx FOLDER_ID
+  ```
+- This returns a JSON with `file_id` — that's the Doc ID (Google Drive auto-converts .docx to Google Docs format)
 
 If they share a Google Doc link:
-- Extract the Doc ID from the URL
-- Copy the doc into the "Job Search — [Name]" folder
-- Grab the Doc ID from the copy
+- Extract the Doc ID from the URL (it's the long string between `/d/` and `/edit`)
+- Copy it into the Job Search folder:
+  ```
+  python ${CLAUDE_PLUGIN_ROOT}/gdocs.py copy DOC_ID "Master Resume" FOLDER_ID
+  ```
+- The returned JSON has the new Doc ID
 
 **4. Save configuration:**
 Save the Doc ID, folder ID, and URL to `references/config.md`:
@@ -410,11 +421,15 @@ Save to: `skills/network-outreach/references/network-context.md`
 
 "Alright, the personal stuff is done. Let me make sure your tools are working."
 
-**Test Google Workspace:**
-Try to create a test Google Doc titled "get-me-a-job test — [user's name]". If it works, delete it and report success. If it fails, troubleshoot:
-- Is the connector installed?
-- Did they OAuth with their Google account?
-- Is the Client ID/Secret configured?
+**Test Google Drive:**
+Run:
+```
+python ${CLAUDE_PLUGIN_ROOT}/gdocs.py auth
+```
+If it prints the user's email and "authenticated", Google Drive is working. If it fails, troubleshoot:
+- Did they run `python google-auth.py` first?
+- Does `.credentials/google_credentials.json` exist?
+- Did they sign in with their @berkeley.edu account?
 
 **Test Gmail:**
 Try to read unread emails. If it works, report success (don't show email contents — just confirm the connection). If it fails, check if the berkeley-gmail-mcp server is running.
@@ -425,12 +440,12 @@ Try a test domain search on a well-known company. If it works, report success. I
 Report status:
 ```
 Connector Status:
-✓ Google Workspace — connected
+✓ Google Drive — connected
 ✓ Gmail — connected
 ○ Hunter/Apollo — not connected (optional)
 ```
 
-If any required connector (Google or Gmail) fails, don't move to Step 7. Help them fix it.
+If Google Drive fails, don't move to Step 7. Help them fix it. Gmail is optional — if it's not connected, outreach drafts will be shown in chat for the user to send manually.
 
 ---
 

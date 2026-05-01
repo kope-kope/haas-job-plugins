@@ -69,11 +69,21 @@ Output two things:
 **Two output paths (use both when possible):**
 
 **Path A: Google Doc (preferred if configured)**
-Check `references/config.md` (at the plugin root) for a Master Resume Doc ID and Job Search Folder ID. If they exist:
-1. Copy the master resume Google Doc into the Job Search folder using Google Drive tools — this preserves ALL of the user's formatting (bold, italics, spacing, fonts, everything)
-2. Title the copy: "[Company Name] - Tailored Resume"
-3. Use find-and-replace on the copy to swap in the tailored bullet content — replace each original bullet with its tailored version, keeping the formatting structure intact
-4. Share the Google Doc link with the user
+Check `references/config.md` (at the plugin root) for a Master Resume Doc ID and Job Search Folder ID. If they exist, use `gdocs.py` (at the plugin root) to produce the tailored resume:
+
+1. Copy the master resume template:
+   ```
+   python ${CLAUDE_PLUGIN_ROOT}/gdocs.py copy MASTER_DOC_ID "[Company Name] - Tailored Resume" FOLDER_ID
+   ```
+   This preserves ALL of the user's formatting (bold, italics, spacing, fonts, everything).
+
+2. For each bullet that changed, replace the original text with the tailored version:
+   ```
+   python ${CLAUDE_PLUGIN_ROOT}/gdocs.py replace NEW_DOC_ID "original bullet text" "tailored bullet text"
+   ```
+   Run this for each bullet, keeping the formatting structure intact.
+
+3. Share the Google Doc link with the user (the URL is in the copy command's JSON output).
 
 This is the best path because the user formatted their own template during `/setup`. Their formatting stays perfect every time.
 
