@@ -1,0 +1,21 @@
+{
+  "name": "haas-job-plugins",
+  "owner": {
+    "name": "Tosin Oladokun",
+    "email": "tosin.oladokun@berkeley.edu",
+    "url": "https://github.com/kope-kope"
+  },
+  "metadata": {
+    "description": "Berkeley Haas MBA job-search plugins — installable from Cowork.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "get-me-a-job",
+      "source": "./",
+      "description": "AI-powered job search pipeline for Berkeley Haas MBAs — resume tailoring, cover letters, interview prep, network outreach, company research, and an AI-writing humanizer. Run /setup to authenticate Google (Drive + Docs + Gmail in one consent) and configure your job-search profile.",
+      "category": "career",
+      "tags": ["resume", "jobs", "interview", "networking", "cover-letter", "career", "mba", "berkeley", "haas"]
+    }
+  ]
+}
