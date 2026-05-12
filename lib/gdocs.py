@@ -33,23 +33,22 @@ Commands:
 
 import sys
 import json
-import os
 from pathlib import Path
 
-# Locate credentials relative to this script
-SCRIPT_DIR = Path(__file__).parent
-CREDS_FILE = SCRIPT_DIR / ".credentials" / "google_credentials.json"
+import common
+
 
 def get_access_token():
     """Get a fresh access token using curl (forces IPv4, avoids httplib2 IPv6 issue)."""
     import subprocess
-    with open(CREDS_FILE) as f:
-        creds_data = json.load(f)
+    creds_data = common.load_creds_data()
     result = subprocess.run([
         'curl', '-4', '-s', '-X', 'POST', 'https://oauth2.googleapis.com/token',
         '-d', f'client_id={creds_data["client_id"]}&client_secret={creds_data["client_secret"]}&refresh_token={creds_data["refresh_token"]}&grant_type=refresh_token'
     ], capture_output=True, text=True, timeout=15)
     data = json.loads(result.stdout)
+    if "access_token" not in data:
+        raise SystemExit(f"Token refresh failed: {result.stdout}")
     return data['access_token']
 
 
@@ -57,10 +56,7 @@ def get_service(api, version):
     from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
 
-    with open(CREDS_FILE) as f:
-        creds_data = json.load(f)
-
-    # Use curl-based token refresh to avoid httplib2 IPv6 timeout issue
+    creds_data = common.load_creds_data()
     access_token = get_access_token()
     creds = Credentials(
         token=access_token,
@@ -78,9 +74,7 @@ def cmd_auth():
     from google.auth.transport.requests import Request
     import requests as req
 
-    with open(CREDS_FILE) as f:
-        creds_data = json.load(f)
-
+    creds_data = common.load_creds_data()
     creds = Credentials(
         token=None,
         refresh_token=creds_data["refresh_token"],
@@ -91,7 +85,6 @@ def cmd_auth():
     )
     creds.refresh(Request())
 
-    # Get email
     r = req.get(
         "https://www.googleapis.com/oauth2/v1/userinfo",
         headers={"Authorization": f"Bearer {creds.token}"}
@@ -102,27 +95,11 @@ def cmd_auth():
 
 def cmd_move(doc_id, folder_id):
     """Move a file into a Drive folder."""
-    from google.oauth2.credentials import Credentials
-    from googleapiclient.discovery import build
+    drive = get_service("drive", "v3")
 
-    with open(CREDS_FILE) as f:
-        creds_data = json.load(f)
-
-    creds = Credentials(
-        token=None,
-        refresh_token=creds_data["refresh_token"],
-        client_id=creds_data["client_id"],
-        client_secret=creds_data["client_secret"],
-        token_uri=creds_data["token_uri"],
-        scopes=creds_data["scopes"]
-    )
-    drive = build("drive", "v3", credentials=creds)
-
-    # Get current parents
     file_meta = drive.files().get(fileId=doc_id, fields="parents").execute()
     current_parents = ",".join(file_meta.get("parents", []))
 
-    # Move to new folder
     drive.files().update(
         fileId=doc_id,
         addParents=folder_id,
