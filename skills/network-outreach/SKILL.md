@@ -116,9 +116,34 @@ Before showing any outreach draft to the user, run it through the humanizer skil
 
 ---
 
+## Sending via Gmail
+
+After the humanizer pass and after the user has seen and approved the draft, save it as a Gmail draft first so they can also see it in their inbox before sending:
+
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gmail draft recipient@company.com "Subject" @/tmp/outreach-body.txt
+```
+
+Write the body text to a temp file (e.g. `/tmp/outreach-body.txt`) rather than passing a giant string on the command line — it's safer and survives shell quoting issues.
+
+Send only when the user replies "send it" / "yes, send" (or equivalent unambiguous approval) in chat:
+
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gmail send recipient@company.com "Subject" @/tmp/outreach-body.txt
+```
+
+For follow-ups in an existing thread, use `gmail reply MESSAGE_ID @body.txt` instead — it reuses the original thread and Subject so the conversation stays threaded.
+
+If the user wants to track outreach, optionally label the sent message:
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gmail label MESSAGE_ID "Outreach/Sent"
+```
+
+---
+
 ## Email Safety Rule
 
-**NEVER send any email without showing the user the full draft first and getting their explicit approval in the chat.** Draft first, approve first, send second. No exceptions.
+**NEVER call `gmail send` or `gmail reply` without showing the user the full draft first and getting their explicit approval in the chat.** Draft first, approve first, send second. No exceptions. A `gmail draft` (which only stages, doesn't deliver) is fine to run after the humanizer pass.
 
 ---
 
