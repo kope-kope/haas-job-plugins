@@ -40,22 +40,45 @@ python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
 
 If this prints `{"status": "authenticated", "email": "...@berkeley.edu", ...}`, skip the rest of this step and continue to Step 1.
 
-If it returns "Not authenticated yet" or fails, tell the user:
+If it returns "Not authenticated yet" or fails, the user needs to authenticate. **The Cowork tool sandbox cannot open the user's browser**, so the OAuth flow has to run in their real terminal. Here's how to make that painless:
 
-"I need to connect to your Google account so I can save your resume to Drive, produce tailored docs, and send outreach from Gmail. This is a one-time sign-in. I'm opening your browser now — pick your **@berkeley.edu** account and click Allow."
-
-Then run:
+**1. Resolve the actual plugin install path.** In a Bash tool call, capture the literal path:
 ```
-python ${CLAUDE_PLUGIN_ROOT}/lib/run.py google_auth
+echo "$CLAUDE_PLUGIN_ROOT"
+```
+You'll get something like `/Users/<name>/.claude/plugins/get-me-a-job` (the exact path varies by OS and Cowork version). Save this for the next step — DO NOT show the user `${CLAUDE_PLUGIN_ROOT}` literally; they can't expand it outside the sandbox.
+
+**2. Try to copy a ready-to-paste command to the user's clipboard.** On macOS:
+```
+echo "bash '$CLAUDE_PLUGIN_ROOT/auth.sh'" | pbcopy
+```
+On Linux: pipe to `xclip -selection clipboard` or `xsel --clipboard --input`. On Windows under WSL: `clip.exe`. If none of these are available, skip to step 3.
+
+**3. Show the user the exact command** with the path resolved. Use a tone like:
+
+"I need you to run one quick command in your own terminal — Cowork's sandbox can't open a browser on your machine, so the OAuth has to happen on the host side. It's literally one paste:
+
+```
+bash '/Users/<their-name>/.claude/plugins/get-me-a-job/auth.sh'
 ```
 
-This opens the user's default browser to Google's sign-in page. After they sign in and click Allow:
-- The script saves credentials to `~/.claude/get-me-a-job/credentials.json`
-- It prints `Authenticated as: <email>`
+I've copied it to your clipboard already. Open Terminal (Cmd+Space → 'Terminal'), paste (Cmd+V), and hit Enter. Your browser will pop open — sign in with your **@berkeley.edu** account, click Allow on the consent screen, then come back here."
 
-**If the user signs in with the wrong account** (not @berkeley.edu), the script exits with a message saying the app is restricted to berkeley.edu. Tell them: "Looks like that was your personal Gmail. Let's try again — pick your @berkeley.edu account this time." Then re-run `google_auth`.
+(Substitute the literal path from step 1 — never show the user `$CLAUDE_PLUGIN_ROOT`.)
 
-**If the script can't open a browser** (rare — e.g. SSH session), the Google library still prints the auth URL. Tell the user to copy that URL into a browser on a machine they control.
+**4. Wait for confirmation, then verify.** Once the user says they ran it, re-check:
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
+```
+If it returns the authenticated payload, move on to Step 1. If not, troubleshoot:
+- Did they sign in with @berkeley.edu? Personal Gmail will be rejected.
+- Did `~/.claude/get-me-a-job/credentials.json` get created? `ls -la ~/.claude/get-me-a-job/`
+- If the auth.sh path didn't exist, the user may have an older plugin install — re-resolve `$CLAUDE_PLUGIN_ROOT`.
+
+**Fallback if auth.sh is missing** (older plugin version): give them the longer command:
+```
+python3 '<resolved-plugin-path>/lib/run.py' google_auth
+```
 
 Only proceed to Step 1 once Google is connected.
 
