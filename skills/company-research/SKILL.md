@@ -12,7 +12,7 @@ description: >
 
 This skill does deep research on a target company and produces a structured brief with a fit analysis against the user's profile. It powers better interview prep, smarter outreach, and more informed decisions about where to apply.
 
-**First step:** Read `references/profile.md` for the user's target roles, industries, strengths, and preferences. This is needed for the fit analysis section. If the file is missing, proceed with the research but skip the fit analysis and tell the user to run `/setup` to enable personalized fit scoring.
+**First step:** Read `~/.claude/get-me-a-job/references/profile.md` for the user's target roles, industries, strengths, and preferences. This is needed for the fit analysis section. If the file is missing, proceed with the research but skip the fit analysis and tell the user to run `/setup` to enable personalized fit scoring.
 
 ---
 
@@ -70,7 +70,7 @@ These pain points feed directly into outreach (value-first approach) and intervi
 
 ### Step 4: Fit Analysis
 
-Using `references/profile.md`, assess:
+Using `~/.claude/get-me-a-job/references/profile.md`, assess:
 
 ```
 ## Fit Analysis: [Company]

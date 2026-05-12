@@ -15,17 +15,49 @@ You are running the onboarding wizard for the get-me-a-job plugin. This is a car
 
 ## Before You Start
 
-Check which reference files already exist. Read each of these paths (relative to this plugin's root):
-- `skills/resume-tailor/references/resume.md`
-- `skills/interview-prep/references/stories.md`
-- `skills/company-research/references/profile.md`
-- `skills/network-outreach/references/outreach-style-guide.md`
-- `skills/network-outreach/references/network-context.md`
+Check which reference files already exist under `~/.claude/get-me-a-job/references/`:
+- `resume.md`
+- `stories.md`
+- `profile.md`
+- `outreach-style-guide.md`
+- `network-context.md`
 
 If some files already exist (from a previous partial setup), tell the user:
 "Looks like you've already set up [X, Y]. Want to redo those, or just finish the ones you haven't done yet?"
 
 Track completion as you go. At the end, report which steps are done and which are skipped.
+
+---
+
+## Step 0: Connect Google
+
+**Goal:** Authenticate the user once for Google Drive, Docs, and Gmail. A single consent screen grants all three.
+
+First, check whether credentials already exist:
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
+```
+
+If this prints `{"status": "authenticated", "email": "...@berkeley.edu", ...}`, skip the rest of this step and continue to Step 1.
+
+If it returns "Not authenticated yet" or fails, tell the user:
+
+"I need to connect to your Google account so I can save your resume to Drive, produce tailored docs, and send outreach from Gmail. This is a one-time sign-in. I'm opening your browser now — pick your **@berkeley.edu** account and click Allow."
+
+Then run:
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py google_auth
+```
+
+This opens the user's default browser to Google's sign-in page. After they sign in and click Allow:
+- The script saves credentials to `~/.claude/get-me-a-job/credentials.json`
+- It prints `Authenticated as: <email>`
+
+**If the user signs in with the wrong account** (not @berkeley.edu), the script exits with a message saying the app is restricted to berkeley.edu. Tell them: "Looks like that was your personal Gmail. Let's try again — pick your @berkeley.edu account this time." Then re-run `google_auth`.
+
+**If the script can't open a browser** (rare — e.g. SSH session), the Google library still prints the auth URL. Tell the user to copy that URL into a browser on a machine they control.
+
+Only proceed to Step 1 once Google is connected.
 
 ---
 
@@ -97,27 +129,18 @@ Coach them through strengthening bullets using the what/how/result/why framework
 - Result: the measurable impact
 - Why: the context that makes it meaningful
 
-Once the user is happy with the resume, save it to:
-- `skills/resume-tailor/references/resume.md`
-- `skills/cover-letter/references/resume.md` (copy)
+Once the user is happy with the resume, save it to `~/.claude/get-me-a-job/references/resume.md`. All skills read from this single location.
 
 ### Step 1b: Set Up Google Drive Folder and Resume Template
 
 **Goal:** Create a job search folder in the user's Google Drive, upload their formatted resume as the master template, and save the Doc ID so resume-tailor can copy from it every time (preserving their formatting perfectly).
 
-First, check if Google credentials exist by running:
-```
-python ${CLAUDE_PLUGIN_ROOT}/gdocs.py auth
-```
-If this fails or the credentials file doesn't exist, skip this step:
-"Google Drive isn't set up yet. Run `python google-auth.py` from the plugin folder first, then come back and run `/setup` again. Your resumes will be produced as Word docs (.docx) in the meantime."
-
-If Google auth succeeds:
+Step 0 already authenticated the user, so Drive/Docs/Gmail are all available.
 
 **1. Create the job search folder:**
 Run:
 ```
-python ${CLAUDE_PLUGIN_ROOT}/gdocs.py create-folder "Job Search — [Name]"
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs create-folder "Job Search — [Name]"
 ```
 This returns a JSON with `folder_id` and `url`. Save both.
 
@@ -136,7 +159,7 @@ Whichever you use, make sure the formatting looks how you want it — bold compa
 If they upload a .docx:
 - Upload it to the Job Search folder:
   ```
-  python ${CLAUDE_PLUGIN_ROOT}/gdocs.py upload /path/to/resume.docx FOLDER_ID
+  python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs upload /path/to/resume.docx FOLDER_ID
   ```
 - This returns a JSON with `file_id` — that's the Doc ID (Google Drive auto-converts .docx to Google Docs format)
 
@@ -144,24 +167,23 @@ If they share a Google Doc link:
 - Extract the Doc ID from the URL (it's the long string between `/d/` and `/edit`)
 - Copy it into the Job Search folder:
   ```
-  python ${CLAUDE_PLUGIN_ROOT}/gdocs.py copy DOC_ID "Master Resume" FOLDER_ID
+  python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs copy DOC_ID "Master Resume" FOLDER_ID
   ```
 - The returned JSON has the new Doc ID
 
 **4. Save configuration:**
-Save the Doc ID, folder ID, and URL to `references/config.md`:
+Save the IDs and URLs to `~/.claude/get-me-a-job/config.json` (merge into the existing JSON; don't overwrite other keys):
 
-```markdown
-# Plugin Configuration
-
-## Google Drive
-- Job Search Folder ID: [FOLDER_ID]
-- Job Search Folder URL: [URL]
-- Master Resume Doc ID: [DOC_ID]
-- Master Resume URL: [URL]
+```json
+{
+  "job_search_folder_id": "FOLDER_ID",
+  "job_search_folder_url": "URL",
+  "master_resume_doc_id": "DOC_ID",
+  "master_resume_url": "URL"
+}
 ```
 
-Save to: `references/config.md` (at the plugin root, read by all skills)
+All skills read these IDs from `~/.claude/get-me-a-job/config.json`.
 
 Tell the user: "Your template is saved. Every time you run `/tailor`, I'll copy this doc and swap in the tailored content — your formatting stays perfect every time. Here's the folder: [folder URL]"
 
@@ -226,7 +248,7 @@ This is the most important part of interview prep — without structured stories
 
 Tell the user: "No worries. When you're ready, just say 'help me build my stories' and we'll work on it together. This is the thing that'll make the biggest difference in your interviews."
 
-Save to: `skills/interview-prep/references/stories.md`
+Save to: `~/.claude/get-me-a-job/references/stories.md`
 
 ---
 
@@ -297,9 +319,9 @@ Save as structured markdown:
 - Too junior: [X]
 ```
 
-Save to: `skills/company-research/references/profile.md`
+Save to: `~/.claude/get-me-a-job/references/profile.md`
 
-Also update the "Target Roles" section of `resume.md` with this info.
+Also update the "Target Roles" section of `~/.claude/get-me-a-job/references/resume.md` with this info.
 
 ---
 
@@ -358,7 +380,7 @@ Subject lines should create curiosity, not describe credentials.
 - Email: under 200 words
 ```
 
-Save to: `skills/network-outreach/references/outreach-style-guide.md`
+Save to: `~/.claude/get-me-a-job/references/outreach-style-guide.md`
 
 ---
 
@@ -413,7 +435,7 @@ When looking for contacts at a target company, search in this order:
 5. Cold outreach (last resort)
 ```
 
-Save to: `skills/network-outreach/references/network-context.md`
+Save to: `~/.claude/get-me-a-job/references/network-context.md`
 
 ---
 
@@ -421,31 +443,28 @@ Save to: `skills/network-outreach/references/network-context.md`
 
 "Alright, the personal stuff is done. Let me make sure your tools are working."
 
-**Test Google Drive:**
-Run:
+**Test Google (Drive + Docs + Gmail — one auth, all three):**
 ```
-python ${CLAUDE_PLUGIN_ROOT}/gdocs.py auth
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gmail list-unread 1
 ```
-If it prints the user's email and "authenticated", Google Drive is working. If it fails, troubleshoot:
-- Did they run `python google-auth.py` first?
-- Does `.credentials/google_credentials.json` exist?
+The first call confirms the credentials and prints the user's email. The second confirms the Gmail scope was granted (just count the result; don't show contents). If either fails:
+- Does `~/.claude/get-me-a-job/credentials.json` exist?
 - Did they sign in with their @berkeley.edu account?
+- If the credential file is corrupt, re-run `python ${CLAUDE_PLUGIN_ROOT}/lib/run.py google_auth` to refresh it.
 
-**Test Gmail:**
-Try to read unread emails. If it works, report success (don't show email contents — just confirm the connection). If it fails, check if the berkeley-gmail-mcp server is running.
-
-**Test Hunter/Apollo (if available):**
-Try a test domain search on a well-known company. If it works, report success. If not available, tell them: "No email finder connected — that's fine. Network outreach will use LinkedIn and email pattern guessing instead. If you want email finding later, set up a Hunter.io or Apollo account."
+**Test Hunter (optional):**
+If a Hunter MCP connector is configured in Cowork, try a test domain search on a well-known company. If not configured, tell them: "No email finder connected — that's fine. Network outreach will use LinkedIn and email pattern guessing instead. Hunter.io has a free tier (25 searches/month) if you want it later."
 
 Report status:
 ```
 Connector Status:
-✓ Google Drive — connected
+✓ Google Drive / Docs — connected
 ✓ Gmail — connected
-○ Hunter/Apollo — not connected (optional)
+○ Hunter — not connected (optional)
 ```
 
-If Google Drive fails, don't move to Step 7. Help them fix it. Gmail is optional — if it's not connected, outreach drafts will be shown in chat for the user to send manually.
+If Google fails, don't move to Step 7. Help them fix it before continuing.
 
 ---
 

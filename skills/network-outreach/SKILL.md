@@ -13,7 +13,7 @@ description: >
 
 This skill helps the user identify the right people to contact at target companies and craft outreach messages that actually get responses.
 
-**First step every time:** Read `references/network-context.md` for context on the user's network and which communities they're part of. Also read `references/outreach-style-guide.md` for their preferred outreach tone and style.
+**First step every time:** Read `~/.claude/get-me-a-job/references/network-context.md` for context on the user's network and which communities they're part of. Also read `~/.claude/get-me-a-job/references/outreach-style-guide.md` for their preferred outreach tone and style.
 
 If these files are missing or empty, tell the user: "You don't have your network context or outreach style set up yet. Want to do a quick setup now?" Walk them through it (what communities are you in? what tone do you prefer?) and save the files. Or tell them to run `/setup`.
 
@@ -31,7 +31,7 @@ For any target company or role, help the user identify the right people. The bes
 - Professional community connections (accelerators, fellowships, industry groups)
 - Mutual LinkedIn connections
 
-Read `references/network-context.md` to understand which communities the user belongs to. These are their warmest paths.
+Read `~/.claude/get-me-a-job/references/network-context.md` to understand which communities the user belongs to. These are their warmest paths.
 
 **Target contacts by role type**:
 - *For PM roles*: Product managers at the company (same level or 1 level up), the hiring manager if identifiable, anyone who has posted about the team's work
@@ -59,7 +59,7 @@ Research the person:
 
 ### Step 3: Craft the Outreach Message
 
-Read `references/outreach-style-guide.md` for the user's preferred approach. The default is the **value-first product insight** approach:
+Read `~/.claude/get-me-a-job/references/outreach-style-guide.md` for the user's preferred approach. The default is the **value-first product insight** approach:
 
 **The value-first approach (default):**
 1. Find a specific, observable problem in the company's product or business (user complaints, UX friction, missing feature, data quality issue)
@@ -116,9 +116,34 @@ Before showing any outreach draft to the user, run it through the humanizer skil
 
 ---
 
+## Sending via Gmail
+
+After the humanizer pass and after the user has seen and approved the draft, save it as a Gmail draft first so they can also see it in their inbox before sending:
+
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gmail draft recipient@company.com "Subject" @/tmp/outreach-body.txt
+```
+
+Write the body text to a temp file (e.g. `/tmp/outreach-body.txt`) rather than passing a giant string on the command line — it's safer and survives shell quoting issues.
+
+Send only when the user replies "send it" / "yes, send" (or equivalent unambiguous approval) in chat:
+
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gmail send recipient@company.com "Subject" @/tmp/outreach-body.txt
+```
+
+For follow-ups in an existing thread, use `gmail reply MESSAGE_ID @body.txt` instead — it reuses the original thread and Subject so the conversation stays threaded.
+
+If the user wants to track outreach, optionally label the sent message:
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gmail label MESSAGE_ID "Outreach/Sent"
+```
+
+---
+
 ## Email Safety Rule
 
-**NEVER send any email without showing the user the full draft first and getting their explicit approval in the chat.** Draft first, approve first, send second. No exceptions.
+**NEVER call `gmail send` or `gmail reply` without showing the user the full draft first and getting their explicit approval in the chat.** Draft first, approve first, send second. No exceptions. A `gmail draft` (which only stages, doesn't deliver) is fine to run after the humanizer pass.
 
 ---
 

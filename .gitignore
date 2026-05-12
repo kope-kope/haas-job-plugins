@@ -1,10 +1,15 @@
-# User credentials (created by google-auth.py, never commit)
+# User credentials live in ~/.claude/get-me-a-job/, never inside the repo
 .credentials/
 
 # Python
 __pycache__/
 *.pyc
+*.pyo
 .env
+.venv/
+
+# Raw client_secret.json should never be committed — credentials.b64 ships instead
+lib/client_secret.json
 
 # macOS
 .DS_Store

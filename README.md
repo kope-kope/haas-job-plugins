@@ -4,16 +4,18 @@ An AI-powered job search pipeline built by a Berkeley Haas MBA student who used 
 
 GO BEARS.
 
+> Restricted to `@berkeley.edu` accounts. The Google OAuth app is configured as Internal to the Berkeley Workspace.
+
 ---
 
-## What It Does
+## What it does
 
 Six skills that work together to run your entire job search from Cowork:
 
 - **Resume Tailor** — Paste a JD, get a tailored resume with rewritten bullets and a gap analysis
 - **Cover Letter** — Writes cover letters that sound human, not like a robot summarizing your resume
 - **Interview Prep** — Company research, 15-20 tailored questions, story mapping, practice mode
-- **Network Outreach** — Finds contacts, drafts value-first outreach messages. 
+- **Network Outreach** — Finds contacts, drafts value-first outreach messages, sends via your Gmail after you approve
 - **Company Research** — Deep research briefs with fit analysis against your profile
 - **Humanizer** — Strips AI-sounding patterns from any text (mandatory pass on all outputs)
 
@@ -25,115 +27,106 @@ Three shortcut commands:
 
 And a one-time onboarding wizard:
 
-- `/setup` — walks you through creating your resume, stories, profile, outreach style, and network context
+- `/setup` — authenticates Google, then walks you through resume, stories, profile, outreach style, and network context
 
 ---
 
-## Getting Started
+## Getting started
 
-### Step 1: Install the Plugin
+### 1. Install the plugin
 
-1. Clone the plugin repo: `git clone https://github.com/kope-kope/haas-job-plugins.git`
-2. In Cowork, go to Settings → Plugins → Install from folder
-3. Select the `get-me-a-job` folder from the cloned repo
-
-### Step 2: Connect Google Drive & Docs
-
-You need this for resume storage, cover letter creation, and tailored resume output. This uses the Google APIs directly (not a Cowork connector).
-
-1. Install Python dependencies: `pip install google-auth-oauthlib google-auth-httplib2 google-api-python-client requests`
-2. `cd` into the `get-me-a-job` plugin folder
-3. Run: `python google-auth.py`
-4. Your browser will open — sign in with your @berkeley.edu Google account and grant permissions
-5. Done. Credentials are saved locally and everything else happens automatically during `/setup`.
-
-To verify it worked: `python gdocs.py auth` — should print your email and "authenticated".
-
-### Step 3: Connect your Berkeley Gmail (Optional but Recommended)
-
-For sending outreach emails directly from Cowork.
-
-1. Clone the Gmail MCP server: `git clone https://github.com/kope-kope/berkeley-gmail-mcp.git`
-2. Download `client_creds.json` from the shared Berkeley Google Drive folder and place it in the cloned repo
-3. Run the setup script (`uv run setup.py`) — it will open a browser for you to OAuth with your @berkeley.edu account
-4. The MCP server runs locally on your machine
-
-### Step 4: Connect Hunter.io (Optional)
-
-For finding email addresses during outreach. Free tier gives you 25 searches/month.
-
-1. Sign up at hunter.io
-2. Add your API key as a connector in Cowork
-
-Without Hunter, outreach falls back to LinkedIn and email pattern guessing. Totally fine.
-
-### Step 5: Run /setup
-
-This is where the magic happens. Say `/setup` in Cowork and the plugin will walk you through:
-
-1. **Resume** — Upload your resume (PDF, Word, or Google Doc link). The plugin parses it, flags weak bullets, and helps you strengthen them before saving.
-2. **Google Drive** — Creates a "Job Search" folder in your Drive and saves your formatted resume as a template. Every tailored resume copies this template so your formatting stays perfect.
-3. **Behavioral Stories** — Build 3-5 STAR stories for interviews. You can upload existing stories, build them conversationally with the AI, or skip and come back later.
-4. **Job Search Profile** — Target roles, industries, geographies, seniority, strengths. If you're unsure, the plugin helps you reason through it based on your resume.
-5. **Outreach Style** — How you want your outreach to sound. Teaches you the value-first approach and lets you set your own rules.
-6. **Network Context** — Maps your communities, alumni networks, and former colleagues for warm intros.
-7. **Connector Check** — Tests that Google, Gmail, and Hunter are working.
-8. **Smoke Test** — Tailors a real JD to make sure everything works end-to-end.
-
----
-
-## How It Works
-
-Every skill reads from personal reference files that `/setup` creates:
+In Cowork:
 
 ```
-skills/
-├── resume-tailor/references/resume.md        ← your master resume
-├── cover-letter/references/resume.md         ← copy of master resume
-├── interview-prep/references/stories.md      ← your STAR stories
-├── network-outreach/references/
-│   ├── network-context.md                    ← your network map
-│   └── outreach-style-guide.md               ← your outreach preferences
-├── company-research/references/profile.md    ← your job search targeting
-└── humanizer/SKILL.md                        ← generic, no config needed
+/plugin marketplace add kope-kope/haas-job-plugins
+/plugin install get-me-a-job@haas-job-plugins
 ```
 
-The plugin never hardcodes your personal data into the skills. Your data lives in `references/` files, the skills read from them. This means the skills stay generic and your data stays yours.
+### 2. Run `/setup`
+
+That's it. `/setup` handles everything else:
+
+1. **Connect Google** — opens your browser, you sign in with `@berkeley.edu`, click Allow once. Drive, Docs, and Gmail are all granted in a single consent screen.
+2. **Resume** — upload your formatted resume (`.docx` or Google Doc link). `/setup` parses it for the skills to use, creates a `Job Search` folder in your Drive, and saves your formatted doc as the master template.
+3. **Behavioral stories** — build 3–5 STAR stories conversationally, or upload existing ones.
+4. **Job search profile** — target roles, industries, geographies, seniority, strengths.
+5. **Outreach style** — how you want your messages to sound.
+6. **Network context** — communities, alumni networks, former colleagues.
+7. **Connector check** — verifies Drive/Docs/Gmail are working.
+8. **Smoke test** — tailors a real JD end-to-end to confirm everything's wired up.
+
+You can stop at any step and resume later — `/setup` is idempotent.
+
+### 3. (Optional) Connect Hunter.io for email finding
+
+Free tier: 25 searches/month. Add your Hunter API key as a connector in Cowork. Without it, outreach falls back to LinkedIn and email pattern guessing — still works fine.
 
 ---
 
-## Safety Rules
+## How it works
 
-- **No emails sent without your approval.** Every outreach draft is shown to you first. You say "send it" before anything goes out.
-- **No fabricated metrics.** If a resume bullet needs a number, the plugin asks you for the real one instead of making one up.
-- **Humanizer pass on everything.** Every cover letter, outreach message, and interview prep doc goes through the humanizer before you see it. Recruiters can spot AI writing instantly.
+Every skill reads from personal reference files that `/setup` creates under your home directory:
+
+```
+~/.claude/get-me-a-job/
+├── credentials.json                ← OAuth tokens (from Google sign-in)
+├── config.json                     ← Drive folder ID, master resume Doc ID
+└── references/
+    ├── resume.md                   ← your master resume
+    ├── stories.md                  ← your STAR stories
+    ├── profile.md                  ← your job search targeting
+    ├── outreach-style-guide.md     ← your outreach preferences
+    └── network-context.md          ← your network map
+```
+
+Your data lives in your home directory, not inside the plugin install. Updating or reinstalling the plugin doesn't touch any of it.
+
+The Python helpers in `lib/` (`gdocs.py`, `gmail.py`, `google_auth.py`) are invoked through `lib/run.py`, which picks the best Python install path automatically:
+
+1. `uv` if available — uses [PEP 723](https://peps.python.org/pep-0723/) inline deps, zero install
+2. Existing pip install — just runs
+3. Auto pip install — installs `requirements.txt` once on first use, then runs
+
+Works the same on macOS, Linux, and Windows.
+
+---
+
+## Safety rules
+
+- **No emails sent without your approval.** Outreach is drafted first, you see it in chat and (after Gmail-draft) in your inbox, and only an explicit "send it" triggers delivery.
+- **No fabricated metrics.** If a resume bullet needs a number, the plugin asks you for the real one instead of inventing one.
+- **Humanizer pass on everything.** Cover letters, outreach messages, and interview prep docs all go through the humanizer before you see them. Recruiters spot AI writing instantly.
 
 ---
 
 ## Examples
 
-The `examples/` folder contains anonymized versions of what your reference files will look like after `/setup`:
+The `examples/` folder shows what your reference files will look like after `/setup`:
 
-- `example-resume.md` — what a finished master resume looks like
-- `example-stories.md` — what structured STAR stories look like
-- `example-profile.md` — what a job search profile looks like
-- `example-network-context.md` — what a network map looks like
-- `example-outreach-style-guide.md` — what an outreach style guide looks like
+- `example-resume.md` — finished master resume
+- `example-stories.md` — structured STAR stories
+- `example-profile.md` — job search profile
+- `example-network-context.md` — network map
+- `example-outreach-style-guide.md` — outreach style guide
 
 ---
 
 ## Requirements
 
 - Cowork (Claude desktop app)
-- Python 3.8+ (for Google Drive auth and API scripts)
-- Google Drive & Docs (required — set up via `python google-auth.py`)
-- Gmail MCP server (recommended)
-- Hunter.io API key (optional)
+- Python 3.10+ (the dispatcher will install dependencies on first use)
+- A `@berkeley.edu` Google account (the OAuth app is restricted to Berkeley Workspace)
 - A Berkeley Haas MBA and the will to get a job
 
 ---
 
-## Built By
+## Security
+
+The OAuth client config in `lib/credentials.b64` is intentionally distributed with the plugin. The Internal-app restriction means a leaked credential is useless outside the Berkeley Workspace. Details and threat model in [SECURITY.md](SECURITY.md).
+
+---
+
+## Built by
 
 Tosin Oladokun — Berkeley Haas MBA '26
 

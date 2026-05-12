@@ -13,4 +13,4 @@ Then:
 3. Help craft the user's "tell me about yourself" for this specific role
 4. Produce a dos and don'ts list for this company and role type
 
-Always read `${CLAUDE_PLUGIN_ROOT}/skills/interview-prep/references/stories.md` first. If the file is missing or empty, offer to help the user build their stories now or tell them to run `/setup` to create them.
+Always read `~/.claude/get-me-a-job/references/stories.md` first. If the file is missing or empty, offer to help the user build their stories now or tell them to run `/setup` to create them.

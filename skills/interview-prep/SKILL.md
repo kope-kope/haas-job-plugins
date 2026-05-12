@@ -13,9 +13,9 @@ description: >
 
 This skill prepares the user for a specific interview with a specific company — not generic prep, but a targeted plan for the exact conversation they're about to have.
 
-**First step every time:** Read `references/stories.md` for the user's key interview stories and how to map them to question types. Also read `references/resume.md` (from the resume-tailor skill) for their full background.
+**First step every time:** Read `~/.claude/get-me-a-job/references/stories.md` for the user's key interview stories and how to map them to question types. Also read `~/.claude/get-me-a-job/references/resume.md` for their full background.
 
-If `stories.md` is missing or empty, tell the user: "You don't have behavioral stories set up yet. These are the most important part of interview prep. Want to build them now?" Then walk them through creating 3-5 STAR stories and save to `references/stories.md`. If they want to skip, proceed with resume-based prep but flag that their answers will be weaker without structured stories.
+If `stories.md` is missing or empty, tell the user: "You don't have behavioral stories set up yet. These are the most important part of interview prep. Want to build them now?" Then walk them through creating 3-5 STAR stories and save to `~/.claude/get-me-a-job/references/stories.md`. If they want to skip, proceed with resume-based prep but flag that their answers will be weaker without structured stories.
 
 ---
 
