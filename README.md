@@ -35,7 +35,13 @@ And a one-time onboarding wizard:
 
 ### 1. Install the plugin
 
-In Cowork:
+**If you're using Cowork** (the Claude desktop / web app — most classmates):
+
+1. Go to the [latest release](https://github.com/kope-kope/haas-job-plugins/releases/latest) and download `get-me-a-job.plugin`.
+2. In Cowork, open the plugin browser (Settings → Plugins → "Add custom plugin" or "Upload .plugin file").
+3. Select the downloaded file and confirm.
+
+**If you're using Claude Code** (the terminal CLI):
 
 ```
 /plugin marketplace add kope-kope/haas-job-plugins
