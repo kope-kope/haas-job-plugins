@@ -14,6 +14,6 @@ Then:
 4. Show the draft to the user for approval before any sending
 5. Suggest follow-up strategy
 
-Always read `${CLAUDE_PLUGIN_ROOT}/skills/network-outreach/references/network-context.md` and `${CLAUDE_PLUGIN_ROOT}/skills/network-outreach/references/outreach-style-guide.md` first. If these files are missing or empty, tell the user to run `/setup` first.
+Always read `~/.claude/get-me-a-job/references/network-context.md` and `~/.claude/get-me-a-job/references/outreach-style-guide.md` first. If these files are missing or empty, tell the user to run `/setup` first.
 
 **CRITICAL: Never send any email without showing the user the full draft first and getting their explicit approval.**

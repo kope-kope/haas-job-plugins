@@ -84,21 +84,21 @@ This is where the magic happens. Say `/setup` in Cowork and the plugin will walk
 
 ## How It Works
 
-Every skill reads from personal reference files that `/setup` creates:
+Every skill reads from personal reference files that `/setup` creates under your home directory:
 
 ```
-skills/
-├── resume-tailor/references/resume.md        ← your master resume
-├── cover-letter/references/resume.md         ← copy of master resume
-├── interview-prep/references/stories.md      ← your STAR stories
-├── network-outreach/references/
-│   ├── network-context.md                    ← your network map
-│   └── outreach-style-guide.md               ← your outreach preferences
-├── company-research/references/profile.md    ← your job search targeting
-└── humanizer/SKILL.md                        ← generic, no config needed
+~/.claude/get-me-a-job/
+├── credentials.json                ← OAuth tokens (from Google sign-in)
+├── config.json                     ← Drive folder ID, master resume Doc ID
+└── references/
+    ├── resume.md                   ← your master resume
+    ├── stories.md                  ← your STAR stories
+    ├── profile.md                  ← your job search targeting
+    ├── outreach-style-guide.md     ← your outreach preferences
+    └── network-context.md          ← your network map
 ```
 
-The plugin never hardcodes your personal data into the skills. Your data lives in `references/` files, the skills read from them. This means the skills stay generic and your data stays yours.
+Your data lives in your home directory, not inside the plugin install. Updating or reinstalling the plugin won't touch any of it.
 
 ---
 

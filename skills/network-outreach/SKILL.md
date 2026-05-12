@@ -13,7 +13,7 @@ description: >
 
 This skill helps the user identify the right people to contact at target companies and craft outreach messages that actually get responses.
 
-**First step every time:** Read `references/network-context.md` for context on the user's network and which communities they're part of. Also read `references/outreach-style-guide.md` for their preferred outreach tone and style.
+**First step every time:** Read `~/.claude/get-me-a-job/references/network-context.md` for context on the user's network and which communities they're part of. Also read `~/.claude/get-me-a-job/references/outreach-style-guide.md` for their preferred outreach tone and style.
 
 If these files are missing or empty, tell the user: "You don't have your network context or outreach style set up yet. Want to do a quick setup now?" Walk them through it (what communities are you in? what tone do you prefer?) and save the files. Or tell them to run `/setup`.
 
@@ -31,7 +31,7 @@ For any target company or role, help the user identify the right people. The bes
 - Professional community connections (accelerators, fellowships, industry groups)
 - Mutual LinkedIn connections
 
-Read `references/network-context.md` to understand which communities the user belongs to. These are their warmest paths.
+Read `~/.claude/get-me-a-job/references/network-context.md` to understand which communities the user belongs to. These are their warmest paths.
 
 **Target contacts by role type**:
 - *For PM roles*: Product managers at the company (same level or 1 level up), the hiring manager if identifiable, anyone who has posted about the team's work
@@ -59,7 +59,7 @@ Research the person:
 
 ### Step 3: Craft the Outreach Message
 
-Read `references/outreach-style-guide.md` for the user's preferred approach. The default is the **value-first product insight** approach:
+Read `~/.claude/get-me-a-job/references/outreach-style-guide.md` for the user's preferred approach. The default is the **value-first product insight** approach:
 
 **The value-first approach (default):**
 1. Find a specific, observable problem in the company's product or business (user complaints, UX friction, missing feature, data quality issue)

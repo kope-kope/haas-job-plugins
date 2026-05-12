@@ -13,7 +13,7 @@ description: >
 
 This skill writes cover letters that sound like a real human wrote them, not a robot summarizing a resume.
 
-**First step every time:** Read `references/resume.md` (from the resume-tailor skill) for context on the user's full background. Also read `references/stories.md` (from the interview-prep skill) if it exists — it contains the user's personal stories and hooks. Reading these is for YOUR context — not so you can list them back.
+**First step every time:** Read `~/.claude/get-me-a-job/references/resume.md` for context on the user's full background. Also read `~/.claude/get-me-a-job/references/stories.md` if it exists — it contains the user's personal stories and hooks. Reading these is for YOUR context — not so you can list them back.
 
 If these files are missing or empty, tell the user to run `/setup` first.
 
@@ -37,7 +37,7 @@ A cover letter that lists "At Company A I did X. At Company B I did Y. At Compan
 
 Every good cover letter opens with something that makes the reader lean in. This is a personal story or observation that connects to the company's mission.
 
-Look for the hook in the user's `references/stories.md` file — it may contain personal hooks the user shared during `/setup`. If not, ask the user: "What's your personal connection to what this company does? Why do you actually care about this, beyond wanting a job?"
+Look for the hook in the user's `~/.claude/get-me-a-job/references/stories.md` file — it may contain personal hooks the user shared during `/setup`. If not, ask the user: "What's your personal connection to what this company does? Why do you actually care about this, beyond wanting a job?"
 
 The hook should be 2-4 sentences. It should feel personal and specific. It should NOT be "I'm excited to apply for the [Role] at [Company]."
 
@@ -51,7 +51,7 @@ Good hooks come from:
 
 Choose the single experience from the user's background that most directly parallels what the company is building. Go deep on this one story — the context, the challenge, the human stakes, what they learned. This is the proof point. ONE, not three or four.
 
-Read `references/stories.md` and select the story that best maps to the company's domain and the role's core challenge. If the user has multiple relevant stories, pick the one with the strongest result and the most vivid detail.
+Read `~/.claude/get-me-a-job/references/stories.md` and select the story that best maps to the company's domain and the role's core challenge. If the user has multiple relevant stories, pick the one with the strongest result and the most vivid detail.
 
 ### Step 3: Bridge to the Role
 
@@ -98,7 +98,7 @@ End by connecting back to why the user cares about what the company is building.
 1. Write the cover letter as a text file first
 2. **Run the full text through the humanizer skill before finalizing.** Cover letters are the most scrutinized document in an application — if it sounds AI-generated, it's worse than not sending one at all. The humanizer catches em dashes, inflated language, sycophantic tone, and other tells. This is not optional.
 3. Verify word count (body only, excluding salutation and closing) is 450-500 words
-4. If Google Drive is configured, save to Google Drive. Check `references/config.md` for the Job Search Folder ID. If it exists, create the doc in that folder:
+4. If Google Drive is configured, save to Google Drive. Check `~/.claude/get-me-a-job/config.json` for `job_search_folder_id`. If it exists, create the doc in that folder:
    ```
    python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs create "Cover Letter - [Company Name]" FOLDER_ID
    python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs write DOC_ID "cover letter text"

@@ -15,12 +15,12 @@ You are running the onboarding wizard for the get-me-a-job plugin. This is a car
 
 ## Before You Start
 
-Check which reference files already exist. Read each of these paths (relative to this plugin's root):
-- `skills/resume-tailor/references/resume.md`
-- `skills/interview-prep/references/stories.md`
-- `skills/company-research/references/profile.md`
-- `skills/network-outreach/references/outreach-style-guide.md`
-- `skills/network-outreach/references/network-context.md`
+Check which reference files already exist under `~/.claude/get-me-a-job/references/`:
+- `resume.md`
+- `stories.md`
+- `profile.md`
+- `outreach-style-guide.md`
+- `network-context.md`
 
 If some files already exist (from a previous partial setup), tell the user:
 "Looks like you've already set up [X, Y]. Want to redo those, or just finish the ones you haven't done yet?"
@@ -97,9 +97,7 @@ Coach them through strengthening bullets using the what/how/result/why framework
 - Result: the measurable impact
 - Why: the context that makes it meaningful
 
-Once the user is happy with the resume, save it to:
-- `skills/resume-tailor/references/resume.md`
-- `skills/cover-letter/references/resume.md` (copy)
+Once the user is happy with the resume, save it to `~/.claude/get-me-a-job/references/resume.md`. All skills read from this single location.
 
 ### Step 1b: Set Up Google Drive Folder and Resume Template
 
@@ -149,19 +147,18 @@ If they share a Google Doc link:
 - The returned JSON has the new Doc ID
 
 **4. Save configuration:**
-Save the Doc ID, folder ID, and URL to `references/config.md`:
+Save the IDs and URLs to `~/.claude/get-me-a-job/config.json` (merge into the existing JSON; don't overwrite other keys):
 
-```markdown
-# Plugin Configuration
-
-## Google Drive
-- Job Search Folder ID: [FOLDER_ID]
-- Job Search Folder URL: [URL]
-- Master Resume Doc ID: [DOC_ID]
-- Master Resume URL: [URL]
+```json
+{
+  "job_search_folder_id": "FOLDER_ID",
+  "job_search_folder_url": "URL",
+  "master_resume_doc_id": "DOC_ID",
+  "master_resume_url": "URL"
+}
 ```
 
-Save to: `references/config.md` (at the plugin root, read by all skills)
+All skills read these IDs from `~/.claude/get-me-a-job/config.json`.
 
 Tell the user: "Your template is saved. Every time you run `/tailor`, I'll copy this doc and swap in the tailored content — your formatting stays perfect every time. Here's the folder: [folder URL]"
 
@@ -226,7 +223,7 @@ This is the most important part of interview prep — without structured stories
 
 Tell the user: "No worries. When you're ready, just say 'help me build my stories' and we'll work on it together. This is the thing that'll make the biggest difference in your interviews."
 
-Save to: `skills/interview-prep/references/stories.md`
+Save to: `~/.claude/get-me-a-job/references/stories.md`
 
 ---
 
@@ -297,9 +294,9 @@ Save as structured markdown:
 - Too junior: [X]
 ```
 
-Save to: `skills/company-research/references/profile.md`
+Save to: `~/.claude/get-me-a-job/references/profile.md`
 
-Also update the "Target Roles" section of `resume.md` with this info.
+Also update the "Target Roles" section of `~/.claude/get-me-a-job/references/resume.md` with this info.
 
 ---
 
@@ -358,7 +355,7 @@ Subject lines should create curiosity, not describe credentials.
 - Email: under 200 words
 ```
 
-Save to: `skills/network-outreach/references/outreach-style-guide.md`
+Save to: `~/.claude/get-me-a-job/references/outreach-style-guide.md`
 
 ---
 
@@ -413,7 +410,7 @@ When looking for contacts at a target company, search in this order:
 5. Cold outreach (last resort)
 ```
 
-Save to: `skills/network-outreach/references/network-context.md`
+Save to: `~/.claude/get-me-a-job/references/network-context.md`
 
 ---
 

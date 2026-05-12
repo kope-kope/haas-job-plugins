@@ -13,7 +13,7 @@ description: >
 
 This skill tailors the user's resume to a specific job description, then produces a ready-to-submit tailored resume as a Word document.
 
-**First step every time:** Read `references/resume.md` in this skill's directory. It contains the user's full work history, narrative summary, and target role archetypes. If this file is missing or empty, tell the user to run `/setup` first.
+**First step every time:** Read `~/.claude/get-me-a-job/references/resume.md` (the user's master resume). It contains their full work history, narrative summary, and target role archetypes. If this file is missing or empty, tell the user to run `/setup` first.
 
 ---
 
@@ -69,7 +69,7 @@ Output two things:
 **Two output paths (use both when possible):**
 
 **Path A: Google Doc (preferred if configured)**
-Check `references/config.md` (at the plugin root) for a Master Resume Doc ID and Job Search Folder ID. If they exist, use the `gdocs` helper (via `lib/run.py`) to produce the tailored resume:
+Check `~/.claude/get-me-a-job/config.json` for `master_resume_doc_id` and `job_search_folder_id`. If both are set, use the `gdocs` helper (via `lib/run.py`) to produce the tailored resume:
 
 1. Copy the master resume template:
    ```
@@ -87,7 +87,7 @@ Check `references/config.md` (at the plugin root) for a Master Resume Doc ID and
 
 This is the best path because the user formatted their own template during `/setup`. Their formatting stays perfect every time.
 
-If `config.md` is missing or doesn't have a Doc ID, tell the user: "You don't have a Google Doc resume template set up. Run `/setup` to create one, or I'll produce a Word doc instead."
+If `config.json` is missing or doesn't have `master_resume_doc_id`, tell the user: "You don't have a Google Doc resume template set up. Run `/setup` to create one, or I'll produce a Word doc instead."
 
 **Path B: Word document (always produce this as well)**
 Use the docx skill to produce a clean, formatted Word document. The structure should match the user's original resume layout: name/contact header, bold company names, italic role titles, bullet points for accomplishments. Make it ready to submit.
