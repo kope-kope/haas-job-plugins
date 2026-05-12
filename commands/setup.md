@@ -40,45 +40,36 @@ python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
 
 If this prints `{"status": "authenticated", "email": "...@berkeley.edu", ...}`, skip the rest of this step and continue to Step 1.
 
-If it returns "Not authenticated yet" or fails, the user needs to authenticate. **The Cowork tool sandbox cannot open the user's browser**, so the OAuth flow has to run in their real terminal. Here's how to make that painless:
+If it returns "Not authenticated yet" or fails, the user needs to authenticate. **The Cowork tool sandbox cannot open the user's browser**, so the OAuth flow has to run in their real terminal. Cowork installs each plugin into a per-session directory whose path you cannot guess (it includes session UUIDs), so you must let a helper script resolve and print the path.
 
-**1. Resolve the actual plugin install path.** In a Bash tool call, capture the literal path:
-```
-echo "$CLAUDE_PLUGIN_ROOT"
-```
-You'll get something like `/Users/<name>/.claude/plugins/get-me-a-job` (the exact path varies by OS and Cowork version). Save this for the next step — DO NOT show the user `${CLAUDE_PLUGIN_ROOT}` literally; they can't expand it outside the sandbox.
-
-**2. Try to copy a ready-to-paste command to the user's clipboard.** On macOS:
-```
-echo "bash '$CLAUDE_PLUGIN_ROOT/auth.sh'" | pbcopy
-```
-On Linux: pipe to `xclip -selection clipboard` or `xsel --clipboard --input`. On Windows under WSL: `clip.exe`. If none of these are available, skip to step 3.
-
-**3. Show the user the exact command** with the path resolved. Use a tone like:
-
-"I need you to run one quick command in your own terminal — Cowork's sandbox can't open a browser on your machine, so the OAuth has to happen on the host side. It's literally one paste:
+**1. Get the literal terminal command from the plugin.** Run exactly this in a Bash tool call:
 
 ```
-bash '/Users/<their-name>/.claude/plugins/get-me-a-job/auth.sh'
+python3 "$CLAUDE_PLUGIN_ROOT/lib/print_setup_cmd.py"
 ```
 
-I've copied it to your clipboard already. Open Terminal (Cmd+Space → 'Terminal'), paste (Cmd+V), and hit Enter. Your browser will pop open — sign in with your **@berkeley.edu** account, click Allow on the consent screen, then come back here."
+The single line of stdout is the literal `bash '...auth.sh'` command the user must paste. The script also tries to put it on the system clipboard.
 
-(Substitute the literal path from step 1 — never show the user `$CLAUDE_PLUGIN_ROOT`.)
+**2. Show that line to the user verbatim — do not paraphrase, do not shorten the path, do not substitute `~/.claude/plugins/...` or any other guess.** The path is per-session and unguessable; only this script knows it.
 
-**4. Wait for confirmation, then verify.** Once the user says they ran it, re-check:
+Wrap it like:
+
+> "Cowork's sandbox can't open your browser, so the one-time Google sign-in has to happen in your own terminal. I've copied this command to your clipboard — open Terminal (Cmd+Space → 'Terminal'), paste (Cmd+V), and hit Enter. Sign in with your **@berkeley.edu** account, click Allow on the consent screen, then come back here.
+>
+> ```
+> <paste the exact stdout line from step 1>
+> ```"
+
+**3. Wait for the user to confirm they ran it, then verify:**
 ```
 python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
 ```
-If it returns the authenticated payload, move on to Step 1. If not, troubleshoot:
-- Did they sign in with @berkeley.edu? Personal Gmail will be rejected.
-- Did `~/.claude/get-me-a-job/credentials.json` get created? `ls -la ~/.claude/get-me-a-job/`
-- If the auth.sh path didn't exist, the user may have an older plugin install — re-resolve `$CLAUDE_PLUGIN_ROOT`.
+If it returns the authenticated payload, move on to Step 1.
 
-**Fallback if auth.sh is missing** (older plugin version): give them the longer command:
-```
-python3 '<resolved-plugin-path>/lib/run.py' google_auth
-```
+**Troubleshooting if verification fails:**
+- "Access blocked: this app is restricted to users within its organization" — they signed in with personal Gmail. Tell them to re-run the command and pick their @berkeley.edu account.
+- No `~/.claude/get-me-a-job/credentials.json` after running — check the terminal output they got. If `python3` wasn't found, point them to https://www.python.org/downloads/.
+- "Directory not found" or "auth.sh: No such file or directory" — they're using a stale plugin install. Tell them to re-upload the latest `.plugin` file in Cowork's plugin browser, then redo step 1.
 
 Only proceed to Step 1 once Google is connected.
 
