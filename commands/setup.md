@@ -29,6 +29,38 @@ Track completion as you go. At the end, report which steps are done and which ar
 
 ---
 
+## Step 0: Connect Google
+
+**Goal:** Authenticate the user once for Google Drive, Docs, and Gmail. A single consent screen grants all three.
+
+First, check whether credentials already exist:
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
+```
+
+If this prints `{"status": "authenticated", "email": "...@berkeley.edu", ...}`, skip the rest of this step and continue to Step 1.
+
+If it returns "Not authenticated yet" or fails, tell the user:
+
+"I need to connect to your Google account so I can save your resume to Drive, produce tailored docs, and send outreach from Gmail. This is a one-time sign-in. I'm opening your browser now — pick your **@berkeley.edu** account and click Allow."
+
+Then run:
+```
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py google_auth
+```
+
+This opens the user's default browser to Google's sign-in page. After they sign in and click Allow:
+- The script saves credentials to `~/.claude/get-me-a-job/credentials.json`
+- It prints `Authenticated as: <email>`
+
+**If the user signs in with the wrong account** (not @berkeley.edu), the script exits with a message saying the app is restricted to berkeley.edu. Tell them: "Looks like that was your personal Gmail. Let's try again — pick your @berkeley.edu account this time." Then re-run `google_auth`.
+
+**If the script can't open a browser** (rare — e.g. SSH session), the Google library still prints the auth URL. Tell the user to copy that URL into a browser on a machine they control.
+
+Only proceed to Step 1 once Google is connected.
+
+---
+
 ## Step 1: Resume
 
 **Goal:** Create `resume.md` — the master resume that all other skills read from.
@@ -103,14 +135,7 @@ Once the user is happy with the resume, save it to `~/.claude/get-me-a-job/refer
 
 **Goal:** Create a job search folder in the user's Google Drive, upload their formatted resume as the master template, and save the Doc ID so resume-tailor can copy from it every time (preserving their formatting perfectly).
 
-First, check if Google credentials exist by running:
-```
-python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
-```
-If this fails or the credentials file doesn't exist, skip this step:
-"Google Drive isn't set up yet. Run `python ${CLAUDE_PLUGIN_ROOT}/lib/run.py google_auth` first, then come back and run `/setup` again. Your resumes will be produced as Word docs (.docx) in the meantime."
-
-If Google auth succeeds:
+Step 0 already authenticated the user, so Drive/Docs/Gmail are all available.
 
 **1. Create the job search folder:**
 Run:
@@ -418,31 +443,28 @@ Save to: `~/.claude/get-me-a-job/references/network-context.md`
 
 "Alright, the personal stuff is done. Let me make sure your tools are working."
 
-**Test Google Drive:**
-Run:
+**Test Google (Drive + Docs + Gmail — one auth, all three):**
 ```
 python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gmail list-unread 1
 ```
-If it prints the user's email and "authenticated", Google Drive is working. If it fails, troubleshoot:
-- Did they run `python ${CLAUDE_PLUGIN_ROOT}/lib/run.py google_auth` first?
-- Does `.credentials/google_credentials.json` exist?
+The first call confirms the credentials and prints the user's email. The second confirms the Gmail scope was granted (just count the result; don't show contents). If either fails:
+- Does `~/.claude/get-me-a-job/credentials.json` exist?
 - Did they sign in with their @berkeley.edu account?
+- If the credential file is corrupt, re-run `python ${CLAUDE_PLUGIN_ROOT}/lib/run.py google_auth` to refresh it.
 
-**Test Gmail:**
-Try to read unread emails. If it works, report success (don't show email contents — just confirm the connection). If it fails, check if the berkeley-gmail-mcp server is running.
-
-**Test Hunter/Apollo (if available):**
-Try a test domain search on a well-known company. If it works, report success. If not available, tell them: "No email finder connected — that's fine. Network outreach will use LinkedIn and email pattern guessing instead. If you want email finding later, set up a Hunter.io or Apollo account."
+**Test Hunter (optional):**
+If a Hunter MCP connector is configured in Cowork, try a test domain search on a well-known company. If not configured, tell them: "No email finder connected — that's fine. Network outreach will use LinkedIn and email pattern guessing instead. Hunter.io has a free tier (25 searches/month) if you want it later."
 
 Report status:
 ```
 Connector Status:
-✓ Google Drive — connected
+✓ Google Drive / Docs — connected
 ✓ Gmail — connected
-○ Hunter/Apollo — not connected (optional)
+○ Hunter — not connected (optional)
 ```
 
-If Google Drive fails, don't move to Step 7. Help them fix it. Gmail is optional — if it's not connected, outreach drafts will be shown in chat for the user to send manually.
+If Google fails, don't move to Step 7. Help them fix it before continuing.
 
 ---
 
