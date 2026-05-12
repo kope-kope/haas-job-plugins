@@ -43,11 +43,11 @@ You need this for resume storage, cover letter creation, and tailored resume out
 
 1. Install Python dependencies: `pip install google-auth-oauthlib google-auth-httplib2 google-api-python-client requests`
 2. `cd` into the `get-me-a-job` plugin folder
-3. Run: `python google-auth.py`
+3. Run: `python lib/run.py google_auth`
 4. Your browser will open — sign in with your @berkeley.edu Google account and grant permissions
 5. Done. Credentials are saved locally and everything else happens automatically during `/setup`.
 
-To verify it worked: `python gdocs.py auth` — should print your email and "authenticated".
+To verify it worked: `python lib/run.py gdocs auth` — should print your email and "authenticated".
 
 ### Step 3: Connect your Berkeley Gmail (Optional but Recommended)
 
@@ -126,7 +126,7 @@ The `examples/` folder contains anonymized versions of what your reference files
 
 - Cowork (Claude desktop app)
 - Python 3.8+ (for Google Drive auth and API scripts)
-- Google Drive & Docs (required — set up via `python google-auth.py`)
+- Google Drive & Docs (required — set up via `python lib/run.py google_auth`)
 - Gmail MCP server (recommended)
 - Hunter.io API key (optional)
 - A Berkeley Haas MBA and the will to get a job

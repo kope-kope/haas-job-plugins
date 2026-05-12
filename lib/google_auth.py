@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#   "google-auth-oauthlib",
+#   "google-auth-httplib2",
+#   "google-api-python-client",
+#   "requests",
+# ]
+# ///
 """
 One-time Google OAuth setup for get-me-a-job plugin.
 
@@ -6,10 +15,8 @@ Run this once before using /setup. It opens your browser, you sign in with
 your @berkeley.edu account, and your credentials are saved locally.
 
 Usage:
-  python google-auth.py
-
-Requirements:
-  pip install google-auth-oauthlib google-auth-httplib2 google-api-python-client requests
+  python lib/run.py google_auth
+  # or directly with uv: uv run lib/google_auth.py
 """
 
 import json

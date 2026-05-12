@@ -107,17 +107,17 @@ Once the user is happy with the resume, save it to:
 
 First, check if Google credentials exist by running:
 ```
-python ${CLAUDE_PLUGIN_ROOT}/gdocs.py auth
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
 ```
 If this fails or the credentials file doesn't exist, skip this step:
-"Google Drive isn't set up yet. Run `python google-auth.py` from the plugin folder first, then come back and run `/setup` again. Your resumes will be produced as Word docs (.docx) in the meantime."
+"Google Drive isn't set up yet. Run `python ${CLAUDE_PLUGIN_ROOT}/lib/run.py google_auth` first, then come back and run `/setup` again. Your resumes will be produced as Word docs (.docx) in the meantime."
 
 If Google auth succeeds:
 
 **1. Create the job search folder:**
 Run:
 ```
-python ${CLAUDE_PLUGIN_ROOT}/gdocs.py create-folder "Job Search — [Name]"
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs create-folder "Job Search — [Name]"
 ```
 This returns a JSON with `folder_id` and `url`. Save both.
 
@@ -136,7 +136,7 @@ Whichever you use, make sure the formatting looks how you want it — bold compa
 If they upload a .docx:
 - Upload it to the Job Search folder:
   ```
-  python ${CLAUDE_PLUGIN_ROOT}/gdocs.py upload /path/to/resume.docx FOLDER_ID
+  python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs upload /path/to/resume.docx FOLDER_ID
   ```
 - This returns a JSON with `file_id` — that's the Doc ID (Google Drive auto-converts .docx to Google Docs format)
 
@@ -144,7 +144,7 @@ If they share a Google Doc link:
 - Extract the Doc ID from the URL (it's the long string between `/d/` and `/edit`)
 - Copy it into the Job Search folder:
   ```
-  python ${CLAUDE_PLUGIN_ROOT}/gdocs.py copy DOC_ID "Master Resume" FOLDER_ID
+  python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs copy DOC_ID "Master Resume" FOLDER_ID
   ```
 - The returned JSON has the new Doc ID
 
@@ -424,10 +424,10 @@ Save to: `skills/network-outreach/references/network-context.md`
 **Test Google Drive:**
 Run:
 ```
-python ${CLAUDE_PLUGIN_ROOT}/gdocs.py auth
+python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs auth
 ```
 If it prints the user's email and "authenticated", Google Drive is working. If it fails, troubleshoot:
-- Did they run `python google-auth.py` first?
+- Did they run `python ${CLAUDE_PLUGIN_ROOT}/lib/run.py google_auth` first?
 - Does `.credentials/google_credentials.json` exist?
 - Did they sign in with their @berkeley.edu account?
 

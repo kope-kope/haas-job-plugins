@@ -100,8 +100,8 @@ End by connecting back to why the user cares about what the company is building.
 3. Verify word count (body only, excluding salutation and closing) is 450-500 words
 4. If Google Drive is configured, save to Google Drive. Check `references/config.md` for the Job Search Folder ID. If it exists, create the doc in that folder:
    ```
-   python ${CLAUDE_PLUGIN_ROOT}/gdocs.py create "Cover Letter - [Company Name]" FOLDER_ID
-   python ${CLAUDE_PLUGIN_ROOT}/gdocs.py write DOC_ID "cover letter text"
+   python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs create "Cover Letter - [Company Name]" FOLDER_ID
+   python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs write DOC_ID "cover letter text"
    ```
    If no folder is configured, skip Google Drive and just produce the local file.
 5. Also save as a local file: `[Company Name] - Cover Letter.docx` in the workspace folder

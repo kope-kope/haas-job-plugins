@@ -69,17 +69,17 @@ Output two things:
 **Two output paths (use both when possible):**
 
 **Path A: Google Doc (preferred if configured)**
-Check `references/config.md` (at the plugin root) for a Master Resume Doc ID and Job Search Folder ID. If they exist, use `gdocs.py` (at the plugin root) to produce the tailored resume:
+Check `references/config.md` (at the plugin root) for a Master Resume Doc ID and Job Search Folder ID. If they exist, use the `gdocs` helper (via `lib/run.py`) to produce the tailored resume:
 
 1. Copy the master resume template:
    ```
-   python ${CLAUDE_PLUGIN_ROOT}/gdocs.py copy MASTER_DOC_ID "[Company Name] - Tailored Resume" FOLDER_ID
+   python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs copy MASTER_DOC_ID "[Company Name] - Tailored Resume" FOLDER_ID
    ```
    This preserves ALL of the user's formatting (bold, italics, spacing, fonts, everything).
 
 2. For each bullet that changed, replace the original text with the tailored version:
    ```
-   python ${CLAUDE_PLUGIN_ROOT}/gdocs.py replace NEW_DOC_ID "original bullet text" "tailored bullet text"
+   python ${CLAUDE_PLUGIN_ROOT}/lib/run.py gdocs replace NEW_DOC_ID "original bullet text" "tailored bullet text"
    ```
    Run this for each bullet, keeping the formatting structure intact.
 

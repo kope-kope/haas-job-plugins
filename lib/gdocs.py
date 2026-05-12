@@ -1,21 +1,34 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#   "google-auth-oauthlib",
+#   "google-auth-httplib2",
+#   "google-api-python-client",
+#   "requests",
+# ]
+# ///
 """
-Google Docs helper script — read, create, copy, write, and move Google Docs.
-Credentials: .credentials/google_credentials.json (created by google-auth.py)
-Usage:
-  python gdocs.py auth
-  python gdocs.py create "Doc Title"
-  python gdocs.py create "Doc Title" FOLDER_ID
-  python gdocs.py copy SOURCE_DOC_ID "New Title"
-  python gdocs.py copy SOURCE_DOC_ID "New Title" FOLDER_ID
-  python gdocs.py read DOC_ID
-  python gdocs.py write DOC_ID "Text to append"
-  python gdocs.py write DOC_ID @/path/to/file.txt
-  python gdocs.py replace DOC_ID "old text" "new text"
-  python gdocs.py clear DOC_ID
-  python gdocs.py move DOC_ID FOLDER_ID
-  python gdocs.py create-folder "Folder Name"
-  python gdocs.py upload /path/to/file.docx FOLDER_ID
+Google Docs / Drive helper.
+
+Run via the dispatcher (recommended):
+  python lib/run.py gdocs <command> [args...]
+
+Or directly with uv:
+  uv run lib/gdocs.py <command> [args...]
+
+Commands:
+  auth
+  create "Doc Title" [FOLDER_ID]
+  copy SOURCE_DOC_ID "New Title" [FOLDER_ID]
+  read DOC_ID
+  write DOC_ID "Text to append"
+  write DOC_ID @/path/to/file.txt
+  replace DOC_ID "old text" "new text"
+  clear DOC_ID
+  move DOC_ID FOLDER_ID
+  create-folder "Folder Name"
+  upload /path/to/file.docx [FOLDER_ID]
 """
 
 import sys
