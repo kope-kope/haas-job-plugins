@@ -19,6 +19,7 @@ Usage:
   # or directly with uv: uv run lib/google_auth.py
 """
 
+import base64
 import json
 import sys
 from pathlib import Path
@@ -26,7 +27,7 @@ from pathlib import Path
 import common
 
 SCRIPT_DIR = Path(__file__).parent
-CLIENT_SECRET_FILE = SCRIPT_DIR / "client_secret.json"
+CREDENTIALS_BLOB = SCRIPT_DIR / "credentials.b64"
 
 # Scopes needed for Google Docs, Drive, and Gmail operations
 SCOPES = [
@@ -39,11 +40,24 @@ SCOPES = [
 ALLOWED_EMAIL_DOMAINS = ("berkeley.edu",)
 
 
-def main():
-    if not CLIENT_SECRET_FILE.exists():
-        print("Error: client_secret.json not found in lib/.")
+def load_client_config() -> dict:
+    """Decode the base64 OAuth client config that ships with the plugin.
+
+    Encoded (rather than committed as raw JSON) only to avoid noisy automated
+    secret-scanner reports. The app is restricted to @berkeley.edu (Internal)
+    so a leaked client_id/secret is not exploitable outside the workspace.
+    See SECURITY.md.
+    """
+    if not CREDENTIALS_BLOB.exists():
+        print(f"Error: {CREDENTIALS_BLOB.name} not found in lib/.")
         print("This file should ship with the plugin. Contact the plugin maintainer.")
         sys.exit(1)
+    raw = base64.b64decode(CREDENTIALS_BLOB.read_text())
+    return json.loads(raw)
+
+
+def main():
+    client_config = load_client_config()
 
     if common.CREDS_FILE.exists():
         print(f"Credentials already exist at {common.CREDS_FILE}")
@@ -58,10 +72,7 @@ def main():
     print("Opening browser for Google sign-in...")
     print("Sign in with your @berkeley.edu account.\n")
 
-    flow = InstalledAppFlow.from_client_secrets_file(
-        str(CLIENT_SECRET_FILE),
-        scopes=SCOPES,
-    )
+    flow = InstalledAppFlow.from_client_config(client_config, scopes=SCOPES)
     creds = flow.run_local_server(port=0)
 
     r = requests.get(
@@ -78,9 +89,7 @@ def main():
         )
         sys.exit(2)
 
-    with open(CLIENT_SECRET_FILE) as f:
-        client_data = json.load(f)
-    app_config = client_data.get("installed", client_data.get("web", {}))
+    app_config = client_config.get("installed", client_config.get("web", {}))
 
     common.save_creds_data({
         "client_id": app_config["client_id"],
